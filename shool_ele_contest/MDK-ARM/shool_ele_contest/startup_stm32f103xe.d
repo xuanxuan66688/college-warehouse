@@ -1,0 +1,1 @@
+shool_ele_contest\startup_stm32f103xe.o: startup_stm32f103xe.s
