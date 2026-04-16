@@ -51,13 +51,13 @@ void set_speed(int speed,bool wheel)
 	{
 		if(speed>=0)
 		{
-			set_dir(0,1);
+			set_dir(0,0);
 			//设置PWM
 			__HAL_TIM_SET_COMPARE(&htim2,TIM_CHANNEL_3,duty);
 		}
 		else
 		{
-			set_dir(0,0);
+			set_dir(0,1);
 			//设置PWM
 			__HAL_TIM_SET_COMPARE(&htim2,TIM_CHANNEL_3,-duty);
 		}

@@ -54,10 +54,12 @@ void MX_GPIO_Init(void)
   HAL_GPIO_WritePin(GPIOA, AIN1_Pin|AIN2_Pin, GPIO_PIN_RESET);
 
   /*Configure GPIO pin Output Level */
-  HAL_GPIO_WritePin(GPIOB, BIN1_Pin|BIN2_Pin|LED_Pin, GPIO_PIN_RESET);
+  HAL_GPIO_WritePin(GPIOB, Buzzer_Pin|BIN1_Pin|BIN2_Pin, GPIO_PIN_RESET);
 
-  /*Configure GPIO pins : TRA4_Pin TRA1_Pin TRA2_Pin TRA3_Pin */
-  GPIO_InitStruct.Pin = TRA4_Pin|TRA1_Pin|TRA2_Pin|TRA3_Pin;
+  /*Configure GPIO pins : TRA4_Pin TRA5_Pin TRA1_Pin TRA6_Pin
+                           TRA2_Pin TRA3_Pin */
+  GPIO_InitStruct.Pin = TRA4_Pin|TRA5_Pin|TRA1_Pin|TRA6_Pin
+                          |TRA2_Pin|TRA3_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   HAL_GPIO_Init(GPIOC, &GPIO_InitStruct);
@@ -75,11 +77,17 @@ void MX_GPIO_Init(void)
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
   HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
 
-  /*Configure GPIO pins : BIN1_Pin BIN2_Pin LED_Pin */
-  GPIO_InitStruct.Pin = BIN1_Pin|BIN2_Pin|LED_Pin;
+  /*Configure GPIO pins : Buzzer_Pin BIN1_Pin BIN2_Pin */
+  GPIO_InitStruct.Pin = Buzzer_Pin|BIN1_Pin|BIN2_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
+  HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
+
+  /*Configure GPIO pins : TapKey1_Pin TapKey2_Pin TapKey3_Pin */
+  GPIO_InitStruct.Pin = TapKey1_Pin|TapKey2_Pin|TapKey3_Pin;
+  GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
+  GPIO_InitStruct.Pull = GPIO_PULLDOWN;
   HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
 
 }

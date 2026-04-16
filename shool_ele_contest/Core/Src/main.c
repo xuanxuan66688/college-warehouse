@@ -18,6 +18,7 @@
 /* USER CODE END Header */
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
+#include "i2c.h"
 #include "tim.h"
 #include "usart.h"
 #include "gpio.h"
@@ -32,7 +33,9 @@
 #include "pid.h"
 #include "struct_typedef.h"
 #include "Tracking.h"
-#include "element_handle.h"
+#include "tapkey.h"
+#include "OLED.h"
+#include "Buzzer.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -72,15 +75,14 @@ int16_t Actual_Speed_1;
 //定义目标速度
 int16_t target_speed_0=-10;
 int16_t target_speed_1=-10;
-//定义串口标志位
-uint8_t Rxflag=0;
 //定义循迹标志位
 uint8_t Trflag=0;
 uint8_t State_T=0;//开启循迹标志位
-uint8_t Mode_3=0;//开启模式标志位
+//定义串口标志位
+uint8_t Rxflag=0;
 //定义接收字符串
 uint8_t lastchar=0;
-
+uint8_t lastchar_3=0;
 /* USER CODE END 0 */
 
 /**
@@ -91,7 +93,17 @@ int main(void)
 {
 
   /* USER CODE BEGIN 1 */
-
+/*
+	标志位定义
+*/
+uint8_t Mode_3=0;//开启模式标志位
+//定义处理转弯标志位。完成两次转弯后取消转弯标志位
+uint8_t Left=0;
+uint8_t Right=0;
+//定义转弯标志位（判断发挥题从左转入还是从右转入）
+uint8_t Judge_1=0; //1为左2为右
+//轻触开关标志位
+uint8_t tapkey=0;
   /* USER CODE END 1 */
 
   /* MCU Configuration--------------------------------------------------------*/
@@ -118,6 +130,7 @@ int main(void)
   MX_TIM3_Init();
   MX_TIM8_Init();
   MX_UART5_Init();
+  MX_I2C1_Init();
   /* USER CODE BEGIN 2 */
   //开启定时器中断
   HAL_TIM_Base_Start_IT(&htim4);
@@ -126,19 +139,22 @@ int main(void)
   HAL_TIM_PWM_Start(&htim2,TIM_CHANNEL_2);
   //编码器初始化
    encoder_init();
- //初始速度
-set_speed(-27,0);
-set_speed(-30,1);
   //串口接受函数一中断使能
- HAL_UART_Receive_IT(&huart5,RxBuff,LENGTH);
+  HAL_UART_Receive_IT(&huart5,RxBuff,LENGTH);
+ //硬件IIC初始化
+  MX_I2C1_Init();
+  //OLED初始化并清屏
+  OLED_Init();
+  
   /* USER CODE END 2 */
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
  while(1)
  {
-	State_T=0;
-	 if(HAL_GPIO_ReadPin(GPIOA,KEY_Pin)==0)//按键按下
+//	State_T=0; 
+//	 printf("%d,%d\r\n",Trflag,lastchar);//测试代码
+	 if(HAL_GPIO_ReadPin(GPIOA,KEY_Pin)==1)//按键按下
 	 {
 		 break;
 	 }
@@ -148,117 +164,172 @@ set_speed(-30,1);
   {
 	  
 		State_T=1;//开启循迹
-	    //初始速度
-		set_speed(-27,0);
-		set_speed(-30,1);
-		 printf("%d,%d\r\n",Trflag,lastchar);//测试代码
+	  OLED_ShowNum(1, 1, lastchar);//测试代码 
+	  OLED_ShowNum(1, 4, Trflag);//测试代码 
+	  
+	  /*
+	  逻辑处理区
+	  */
+			
 			 //转弯传值函数
 			 if(Trflag==1&&lastchar==48)//lastchar=48置直行标志位(处理发挥第一问)
 			 {
+				 OLED_ShowNum(1, 1, lastchar);
 					State_T=1;
 					HAL_Delay(2000);
 					State_T=0;
 					Turn_Back();
 					State_T=1;
-					lastchar=80;//进入右转掉头回去的标志位
+					lastchar=100;//进入发挥第一问掉头标志位
+				 OLED_ShowNum(1, 1, lastchar);
 			}
+			//处理中病房走入远端病房
+			 else if(Trflag==1&&lastchar==57&&Judge_1==1)//左转进入中端病房
+			 {
+				 State_T=0;
+				Turn_Left(); //左转出中端病房
+				set_speed(-15,0);
+				set_speed(-15,0);
+				 State_T=1; 
+				 OLED_ShowNum(1, 1, lastchar);
+			 }
+			 else if(Trflag==1&&lastchar==57&&Judge_1==2)//右转进入中端病房
+			 {
+				 State_T=0;
+				Turn_Right(); //右转出中端病房
+				set_speed(-15,0);
+				set_speed(-15,0);
+				 State_T=1; 
+				 OLED_ShowNum(1, 1, lastchar);
+			 }
 			if(Trflag==1&&lastchar==49)
 			{
-				HAL_GPIO_WritePin(GPIOB,LED_Pin,GPIO_PIN_SET);
+				OLED_ShowNum(1, 1, lastchar);
 				State_T=0;
 				Turn_Left();
+				set_speed(-15,0);
+				set_speed(-15,0);
+				//HAL_Delay(500);
+				//printf("%d,%d\r\n",Trflag,lastchar);//测试代码
+				State_T=1;
+				HAL_Delay(2000);
+				State_T=0;
+				Turn_Back();
+//				State_T=1;
+				Judge_1=1;  //表示先是左转转入
+				lastchar=81;//进入右转掉头回去的标志位
+				OLED_ShowNum(1, 1, lastchar);
+			}
+			else if(Trflag==1&&lastchar==50)
+			{
+				OLED_ShowNum(1, 1, lastchar);
+				State_T=0;
+				Turn_Right();
+				set_speed(-15,0);
+				set_speed(-15,0);
+				//HAL_Delay(500);
 				printf("%d,%d\r\n",Trflag,lastchar);//测试代码
 				State_T=1;
 				HAL_Delay(2000);
 				State_T=0;
 				Turn_Back();
 				State_T=1;
-				lastchar=81;//进入右转掉头回去的标志位
-			}
-			else if(Trflag==1&&lastchar==50)
-			{
-				State_T=0;
-				HAL_GPIO_WritePin(GPIOB,LED_Pin,GPIO_PIN_SET);
-				Turn_Right();
-//				printf("%d,%d\r\n",Trflag,lastchar);//测试代码
-				State_T=1;
-				HAL_Delay(2000);
-				State_T=0;
-				Turn_Back();
-				State_T=1;
+				Judge_1=2;
 				lastchar=80;//进入左转掉头回去的标志位
+				OLED_ShowNum(1, 1, lastchar);
 			}
 			//特殊处理基础第三问，四个字母时
 			else if (Trflag==1&&lastchar==51)
 			{
-				HAL_GPIO_WritePin(GPIOB,LED_Pin,GPIO_PIN_SET);
 				State_T=0;
 				Turn_Left();
 				State_T=1;
 				Mode_3=49;//置第三问特殊处理标志位
 				printf("%d,%d,%d\r\n",Trflag,lastchar,Mode_3);//测试代码
 				HAL_Delay(200);
-				HAL_GPIO_WritePin(GPIOB,LED_Pin,GPIO_PIN_RESET);
-				lastchar=0;
+				OLED_ShowNum(1, 1, lastchar);
 			}
 			else if (Trflag==1&&lastchar==52)
 			{
-				HAL_GPIO_WritePin(GPIOB,LED_Pin,GPIO_PIN_SET);
 				State_T=0;
 				Turn_Right();
 				State_T=1;
 				Mode_3=49;//置第三问特殊处理标志位
 				printf("%d,%d,%d\r\n",Trflag,lastchar,Mode_3);//测试代码
 				HAL_Delay(200);
-				HAL_GPIO_WritePin(GPIOB,LED_Pin,GPIO_PIN_RESET);
-				lastchar=0;
+				lastchar=0;//转弯完成之后清零标志位
+				OLED_ShowNum(1, 1, lastchar);
 			}
+			//掉头返回处理
 			if(Trflag==1&&lastchar==80)//全黑以及在左转弯向右掉头
 			{
+				//Buzzer();
 				State_T=0;
 				Turn_Left();
 	//			printf("%d,%d\r\n",Trflag,lastchar);//测试代码
 	//			HAL_Delay(200);
 				State_T=1;
 				lastchar=0;
+				OLED_ShowNum(1, 1, lastchar);
 			}
 			else if (Trflag==1&&lastchar==81)
 			{
+				//Buzzer();
 				State_T=0;
 				Turn_Right();
 	//			printf("%d,%d\r\n",Trflag,lastchar);//测试代码
 	//			HAL_Delay(200);
 				State_T=1;
-				lastchar=1;
+				lastchar=0;
+				OLED_ShowNum(1, 1, lastchar);
 			}
-			if(Trflag==2&&lastchar==1)
+			//第三问掉头返回处理
+			if((Trflag==2&&Mode_3==49&&lastchar==80)||(Trflag==2&&Mode_3==49&&lastchar_3==80))
 			{
+				Buzzer();
 				State_T=0;
 				Turn_Left();
+				HAL_Delay(200);
 	//			printf("%d,%d\r\n",Trflag,lastchar);//测试代码
 	//			HAL_Delay(200);
+				lastchar=81;
+				
+				Left+=1;
 				State_T=1;
-				lastchar=1;
+				HAL_Delay(500);
+				OLED_ShowNum(1, 1, lastchar);
 			}
-			else if(Trflag==3&&lastchar==1)
+			else if((Trflag==3&&Mode_3==49&&lastchar==81)||(Trflag==3&&Mode_3==49&&lastchar_3==81))
 			{
+				Buzzer();
 				State_T=0;
 				Turn_Right();
+				HAL_Delay(200);
 	//			printf("%d,%d\r\n",Trflag,lastchar);//测试代码
 	//			HAL_Delay(200);
+				lastchar=80;
+				Right+=1;
 				State_T=1;
-				lastchar=1;
+				HAL_Delay(500);
+				lastchar_3=81;
+				OLED_ShowNum(1, 1, lastchar);
 			}
-			if((Mode_3==49&&lastchar==80)
-				||(Mode_3==49&&lastchar==81))
+			//清除左右转标志位
+			if((Left==1&&Right==1)||Left==2||Right==2)
 			{
-				lastchar=1;//将处理标志为置为0，使其不进入任何分支程序
-				//掉头后正常循迹回到起点
-				State_T=1;
-				printf("%d,%d,%d\r\n",Trflag,lastchar,Mode_3);//测试代码
-				HAL_Delay(200);
+				lastchar=0;//转弯完成后关掉转弯标注位防止再次转弯
+				Mode_3=0;
 			}
-    /* USER CODE END WHILE */
+			//判断发挥第一问
+			if(lastchar==100&&Judge_1==1)
+			{
+				lastchar=80;
+			}
+			else if(lastchar==100&&Judge_1==2)
+			{
+				lastchar=81;
+			}
+	/* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
   }

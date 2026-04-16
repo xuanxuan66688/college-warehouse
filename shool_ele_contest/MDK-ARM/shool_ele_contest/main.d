@@ -24,10 +24,12 @@ shool_ele_contest\main.o: ../Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal_dma_
 shool_ele_contest\main.o: ../Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal_cortex.h
 shool_ele_contest\main.o: ../Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal_flash.h
 shool_ele_contest\main.o: ../Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal_flash_ex.h
+shool_ele_contest\main.o: ../Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal_i2c.h
 shool_ele_contest\main.o: ../Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal_pwr.h
 shool_ele_contest\main.o: ../Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal_tim.h
 shool_ele_contest\main.o: ../Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal_tim_ex.h
 shool_ele_contest\main.o: ../Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal_uart.h
+shool_ele_contest\main.o: ../Core/Inc/i2c.h
 shool_ele_contest\main.o: ../Core/Inc/tim.h
 shool_ele_contest\main.o: ../Core/Inc/usart.h
 shool_ele_contest\main.o: ../Core/Inc/gpio.h
@@ -39,4 +41,6 @@ shool_ele_contest\main.o: ./user/encoder.h
 shool_ele_contest\main.o: ./user/pid.h
 shool_ele_contest\main.o: ./user/struct_typedef.h
 shool_ele_contest\main.o: ./user/Tracking.h
-shool_ele_contest\main.o: ./user/element_handle.h
+shool_ele_contest\main.o: ./user/tapkey.h
+shool_ele_contest\main.o: ./user/OLED.h
+shool_ele_contest\main.o: ./user/Buzzer.h

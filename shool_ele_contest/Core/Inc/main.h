@@ -59,8 +59,12 @@ void Error_Handler(void);
 /* Private defines -----------------------------------------------------------*/
 #define TRA4_Pin GPIO_PIN_13
 #define TRA4_GPIO_Port GPIOC
+#define TRA5_Pin GPIO_PIN_0
+#define TRA5_GPIO_Port GPIOC
 #define TRA1_Pin GPIO_PIN_1
 #define TRA1_GPIO_Port GPIOC
+#define TRA6_Pin GPIO_PIN_2
+#define TRA6_GPIO_Port GPIOC
 #define TRA2_Pin GPIO_PIN_3
 #define TRA2_GPIO_Port GPIOC
 #define KEY_Pin GPIO_PIN_0
@@ -69,14 +73,20 @@ void Error_Handler(void);
 #define AIN1_GPIO_Port GPIOA
 #define AIN2_Pin GPIO_PIN_5
 #define AIN2_GPIO_Port GPIOA
+#define Buzzer_Pin GPIO_PIN_0
+#define Buzzer_GPIO_Port GPIOB
 #define BIN1_Pin GPIO_PIN_14
 #define BIN1_GPIO_Port GPIOB
 #define BIN2_Pin GPIO_PIN_15
 #define BIN2_GPIO_Port GPIOB
 #define TRA3_Pin GPIO_PIN_10
 #define TRA3_GPIO_Port GPIOC
-#define LED_Pin GPIO_PIN_9
-#define LED_GPIO_Port GPIOB
+#define TapKey1_Pin GPIO_PIN_3
+#define TapKey1_GPIO_Port GPIOB
+#define TapKey2_Pin GPIO_PIN_4
+#define TapKey2_GPIO_Port GPIOB
+#define TapKey3_Pin GPIO_PIN_5
+#define TapKey3_GPIO_Port GPIOB
 
 /* USER CODE BEGIN Private defines */
 

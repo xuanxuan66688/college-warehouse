@@ -21,13 +21,32 @@ Target DLL:      CMSIS_AGDI.dll V1.28.3.0
 Dialog DLL:      TCM.DLL V1.32.0.0
  
 <h2>Project:</h2>
-D:\git_school_ele_contest\shool_ele_contest\MDK-ARM\shool_ele_contest.uvprojx
-Project File Date:  04/08/2026
+D:\college warehouse\shool_ele_contest\MDK-ARM\shool_ele_contest.uvprojx
+Project File Date:  04/16/2026
 
 <h2>Output:</h2>
 *** Using Compiler 'V5.06 update 5 (build 528)', folder: 'D:\keil5\C51\ARM\ARMCC\Bin'
 Build target 'shool_ele_contest'
-"shool_ele_contest\shool_ele_contest.axf" - 0 Error(s), 0 Warning(s).
+compiling main.c...
+./user/motor.h(12): warning:  #1-D: last line of file ends without a newline
+  #endif
+./user/encoder.h(12): warning:  #1-D: last line of file ends without a newline
+  #endif
+./user/Tracking.h(16): warning:  #1-D: last line of file ends without a newline
+  #endif
+./user/tapkey.h(12): warning:  #1-D: last line of file ends without a newline
+  #endif
+./user/OLED.h(10): warning:  #1-D: last line of file ends without a newline
+  #endif
+./user/Buzzer.h(11): warning:  #1-D: last line of file ends without a newline
+  #endif
+../Core/Src/main.c(106): warning:  #177-D: variable "tapkey"  was declared but never referenced
+  uint8_t tapkey=0;
+../Core/Src/main.c: 7 warnings, 0 errors
+linking...
+Program Size: Code=12472 RO-data=540 RW-data=36 ZI-data=1540  
+FromELF: creating hex file...
+"shool_ele_contest\shool_ele_contest.axf" - 0 Error(s), 7 Warning(s).
 
 <h2>Software Packages used:</h2>
 
@@ -50,7 +69,7 @@ Package Vendor: Keil
 <h2>Collection of Component Files used:</h2>
 
    * Component: ARM::CMSIS:CORE:5.0.1
-Build Time Elapsed:  00:00:01
+Build Time Elapsed:  00:00:04
 </pre>
 </body>
 </html>
